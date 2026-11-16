@@ -20,9 +20,8 @@
         </div>
       </div>
       <div class="topbar-actions">
-        <select id="profileSelect" class="profile-select" aria-label="Benutzer wählen"></select>
-        <button id="addProfileBtn" class="icon-btn" type="button" title="Benutzer hinzufügen">+👤</button>
-        <button id="openImportBtn" class="icon-btn" type="button" title="Vokabeln importieren">+📥</button>
+        <span id="activeUserBadge" class="user-badge">👤 Fred</span>
+        <button id="adminBtn" class="icon-btn" type="button" title="Eltern-Menü">🔒</button>
       </div>
     </div>
   </header>
@@ -170,19 +169,41 @@
     </section>
   </main>
 
-  <!-- IMPORT MODAL -->
-  <div id="importModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+  <!-- ADMIN MODAL (PIN-geschützt) -->
+  <div id="adminModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
     <div class="modal">
-      <h2>Weitere Vokabeln importieren</h2>
-      <p style="font-size:0.88rem;color:var(--muted);margin-top:0;">
-        Für Unit 2, 3 usw. einfach Zeilen im Format <code>Englisch;Deutsch;Unit;Abschnitt</code> einfügen:
-      </p>
-      <textarea id="importTextarea" rows="7" placeholder="library;Bücherei, Bibliothek;Unit 2;Check-in&#10;homework;Hausaufgaben;Unit 2;Station 1"></textarea>
-      <div class="action-row" style="margin-top:12px;">
-        <button id="closeImportBtn" class="btn btn-secondary" type="button">Abbrechen</button>
-        <button id="saveImportBtn" class="btn btn-good" type="button">Hinzufügen</button>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <h2 style="margin:0;">🔒 Eltern- &amp; Admin-Menü</h2>
+        <button id="closeAdminBtn" class="btn btn-secondary" style="padding:6px 12px;" type="button">✕</button>
       </div>
-      <hr style="border:none;border-top:1px solid var(--border);margin:16px 0;" />
+
+      <label class="field" style="margin-bottom:10px;">
+        Aktiver Benutzer
+        <div style="display:flex;gap:6px;">
+          <select id="profileSelect"></select>
+          <button id="addProfileBtn" class="btn btn-secondary" style="padding:8px 12px;white-space:nowrap;" type="button">+ Neu</button>
+        </div>
+      </label>
+
+      <hr style="border:none;border-top:1px solid var(--border);margin:12px 0;" />
+
+      <h3 style="margin:0 0 6px;font-size:0.95rem;">📥 Weitere Vokabeln importieren</h3>
+      <p style="font-size:0.82rem;color:var(--muted);margin:0 0 6px;">
+        Format: <code>Englisch;Deutsch;Unit;Abschnitt</code>
+      </p>
+      <textarea id="importTextarea" rows="4" placeholder="library;Bücherei;Unit 2;Check-in"></textarea>
+      <button id="saveImportBtn" class="btn btn-good" style="width:100%;margin-top:8px;" type="button">Vokabeln hinzufügen</button>
+
+      <hr style="border:none;border-top:1px solid var(--border);margin:14px 0;" />
+
+      <h3 style="margin:0 0 6px;font-size:0.95rem;">💾 Lernstand sichern / übertragen</h3>
+      <div class="action-row" style="margin-top:6px;">
+        <button id="exportBackupBtn" class="btn btn-secondary" style="padding:10px;font-size:0.86rem;" type="button">Backup kopieren</button>
+        <button id="importBackupBtn" class="btn btn-secondary" style="padding:10px;font-size:0.86rem;" type="button">Backup einfügen</button>
+      </div>
+
+      <hr style="border:none;border-top:1px solid var(--border);margin:14px 0;" />
+
       <button id="resetProgressBtn" class="btn btn-retry" style="width:100%;" type="button">Lernstand dieses Profils zurücksetzen</button>
     </div>
   </div>

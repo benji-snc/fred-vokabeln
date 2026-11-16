@@ -5,9 +5,10 @@
   const STORAGE_ACTIVE_PROFILE = "fred_vocab_active_profile_v1";
   const STORAGE_CUSTOM = "fred_vocab_custom_v1";
   const DAILY_GOAL = 15;
+  const ADMIN_PIN = "1234"; // Eltern-PIN (hier bei Bedarf ändern)
 
-  let profiles = loadJson(STORAGE_PROFILES, ["Fred", "Benny"]);
-  if (!Array.isArray(profiles) || profiles.length === 0) profiles = ["Fred", "Benny"];
+  let profiles = loadJson(STORAGE_PROFILES, ["Fred"]);
+  if (!Array.isArray(profiles) || profiles.length === 0) profiles = ["Fred"];
   let activeProfile = localStorage.getItem(STORAGE_ACTIVE_PROFILE) || profiles[0];
   if (!profiles.includes(activeProfile)) activeProfile = profiles[0];
 
@@ -35,6 +36,8 @@
   let typeAnswered = false;
 
   // Elements
+  const activeUserBadge = document.getElementById("activeUserBadge");
+  const adminBtn = document.getElementById("adminBtn");
   const profileSelect = document.getElementById("profileSelect");
   const addProfileBtn = document.getElementById("addProfileBtn");
   const levelBadge = document.getElementById("levelBadge");
@@ -103,11 +106,12 @@
   const vocabList = document.getElementById("vocabList");
 
   // Modal elements
-  const openImportBtn = document.getElementById("openImportBtn");
-  const importModal = document.getElementById("importModal");
-  const closeImportBtn = document.getElementById("closeImportBtn");
+  const adminModal = document.getElementById("adminModal");
+  const closeAdminBtn = document.getElementById("closeAdminBtn");
   const saveImportBtn = document.getElementById("saveImportBtn");
   const importTextarea = document.getElementById("importTextarea");
+  const exportBackupBtn = document.getElementById("exportBackupBtn");
+  const importBackupBtn = document.getElementById("importBackupBtn");
   const resetProgressBtn = document.getElementById("resetProgressBtn");
 
   function loadJson(key, fallback) {
@@ -204,6 +208,7 @@
       .map((p) => `<option value="${escapeHtml(p)}">${escapeHtml(p)}</option>`)
       .join("");
     profileSelect.value = activeProfile;
+    activeUserBadge.textContent = `👤 ${activeProfile}`;
   }
 
   function switchProfile(name) {
@@ -212,6 +217,7 @@
     progress = loadJson(STORAGE_PROGRESS_PREFIX + activeProfile, {});
     userMeta = loadUserMeta(activeProfile);
     streak = 0;
+    activeUserBadge.textContent = `👤 ${activeProfile}`;
     pickNextCard();
     renderCurrentMode();
   }
@@ -666,9 +672,17 @@
 
   listSearchInput.addEventListener("input", renderList);
 
-  // Import Modal
-  openImportBtn.addEventListener("click", () => importModal.classList.remove("hidden"));
-  closeImportBtn.addEventListener("click", () => importModal.classList.add("hidden"));
+  // Admin Modal (PIN-geschützt)
+  adminBtn.addEventListener("click", () => {
+    const pin = prompt("Eltern-PIN eingeben:");
+    if (pin === null) return;
+    if (pin.trim() !== ADMIN_PIN) {
+      showToast("❌ Falsche PIN");
+      return;
+    }
+    adminModal.classList.remove("hidden");
+  });
+  closeAdminBtn.addEventListener("click", () => adminModal.classList.add("hidden"));
 
   saveImportBtn.addEventListener("click", () => {
     const lines = importTextarea.value
@@ -699,8 +713,51 @@
       pickNextCard();
       renderCurrentMode();
       importTextarea.value = "";
-      importModal.classList.add("hidden");
+      adminModal.classList.add("hidden");
       showToast(`✅ ${added.length} Vokabeln importiert`);
+    }
+  });
+
+  exportBackupBtn.addEventListener("click", async () => {
+    const payload = JSON.stringify({
+      profile: activeProfile,
+      progress,
+      userMeta,
+      customVocab,
+    });
+    try {
+      await navigator.clipboard.writeText(payload);
+      showToast("📋 Backup in Zwischenablage kopiert!");
+    } catch {
+      prompt("Backup-Text kopieren (Strg+C):", payload);
+    }
+  });
+
+  importBackupBtn.addEventListener("click", () => {
+    const raw = prompt("Backup-Text hier einfügen:");
+    if (!raw) return;
+    try {
+      const data = JSON.parse(raw);
+      if (data.progress) {
+        progress = data.progress;
+        saveProgress();
+      }
+      if (data.userMeta) {
+        userMeta = data.userMeta;
+        saveUserMeta();
+      }
+      if (Array.isArray(data.customVocab)) {
+        customVocab = data.customVocab;
+        localStorage.setItem(STORAGE_CUSTOM, JSON.stringify(customVocab));
+        allVocab = [...(window.VOCAB_DATA || []), ...customVocab];
+        populateFilters();
+      }
+      pickNextCard();
+      renderCurrentMode();
+      adminModal.classList.add("hidden");
+      showToast("✅ Backup wiederhergestellt!");
+    } catch {
+      showToast("❌ Ungültiges Backup-Format");
     }
   });
 
@@ -719,7 +776,7 @@
       saveUserMeta();
       pickNextCard();
       renderCurrentMode();
-      importModal.classList.add("hidden");
+      adminModal.classList.add("hidden");
     }
   });
 

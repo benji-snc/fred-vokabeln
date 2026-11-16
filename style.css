@@ -99,6 +99,16 @@ body {
   cursor: pointer;
 }
 
+.user-badge {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #fff;
+  border-radius: 11px;
+  padding: 6px 10px;
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
 .profile-select {
   width: auto;
   background: rgba(255, 255, 255, 0.22);
