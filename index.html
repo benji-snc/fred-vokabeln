@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#16a34a" />
+  <title>Freds Vokabeltrainer – Green Line 1</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-row">
+      <div class="brand">
+        <div class="brand-badge">GL 1</div>
+        <div>
+          <h1>Freds Vokabeln</h1>
+          <small id="levelBadge">Level 1 · Starter</small>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <select id="profileSelect" class="profile-select" aria-label="Benutzer wählen"></select>
+        <button id="addProfileBtn" class="icon-btn" type="button" title="Benutzer hinzufügen">+👤</button>
+        <button id="openImportBtn" class="icon-btn" type="button" title="Vokabeln importieren">+📥</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Compact Gamification Bar -->
+    <section class="gamify-bar" aria-label="Dein Fortschritt">
+      <div class="gamify-pills">
+        <div class="g-pill g-fire" title="Tage in Folge geübt">
+          <span>🔥</span>
+          <strong id="statDailyStreak">0</strong>
+          <small>Tage</small>
+        </div>
+        <div class="g-pill g-bolt" title="Richtige Antworten in Folge">
+          <span>⚡</span>
+          <strong id="statStreak">0</strong>
+          <small>Serie</small>
+        </div>
+        <div class="g-pill g-star" title="Sicher gekonnte Vokabeln (3 Sterne)">
+          <span>⭐</span>
+          <strong id="statMastered">0</strong>
+          <small>Sicher</small>
+        </div>
+      </div>
+      <div class="daily-goal-wrap">
+        <div class="daily-goal-text">
+          <span>🎯 Tagesziel</span>
+          <strong id="dailyGoalLabel">0 / 15</strong>
+        </div>
+        <div class="progress-track">
+          <div id="dailyGoalBar" class="progress-fill" style="width: 0%"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Mode Tabs -->
+    <nav class="mode-tabs" aria-label="Lernmodus">
+      <button class="mode-tab active" data-mode="flashcard" type="button">🃏 Karten</button>
+      <button class="mode-tab" data-mode="mc" type="button">🎯 Quiz</button>
+      <button class="mode-tab" data-mode="type" type="button">⌨️ Tippen</button>
+      <button class="mode-tab" data-mode="list" type="button">📖 Liste</button>
+    </nav>
+
+    <!-- Compact Filter Summary + Collapsible Drawer -->
+    <section class="filter-strip">
+      <button id="filterToggleBtn" class="filter-pill-btn" type="button">
+        <span id="filterSummaryText">Alle Units · DE → EN</span>
+        <span class="filter-gear">⚙️ Filter</span>
+      </button>
+      <div id="filterDrawer" class="controls-card hidden">
+        <div class="controls-grid">
+          <label class="field">
+            Unit / Kapitel
+            <select id="unitSelect"></select>
+          </label>
+          <label class="field">
+            Abschnitt / Thema
+            <select id="sectionSelect"></select>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <label class="chip-toggle">
+            <input type="checkbox" id="dirToggle" checked />
+            <span id="dirLabel">Deutsch → Englisch</span>
+          </label>
+          <label class="chip-toggle">
+            <input type="checkbox" id="hardOnlyToggle" />
+            <span>Nur schwierige (★ &lt; 3)</span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- FLASHCARD VIEW -->
+    <section id="view-flashcard">
+      <div class="card-stage">
+        <div id="flashcard" class="flashcard" tabindex="0">
+          <div class="card-meta">
+            <span id="fcMeta" class="tag">Unit</span>
+            <span id="fcStars" class="stars">☆☆☆</span>
+            <button id="fcSpeak" class="speak-btn" type="button">🔊 Anhören</button>
+          </div>
+          <div class="card-main">
+            <p id="fcPrompt" class="word-primary">...</p>
+            <p id="fcIpa" class="word-ipa"></p>
+            <div id="fcAnswerWrap" class="hidden">
+              <p id="fcAnswer" class="word-answer"></p>
+              <p id="fcExample" class="word-example"></p>
+            </div>
+          </div>
+          <div id="fcHint" class="tap-hint">👆 Tippen zum Umdrehen</div>
+        </div>
+      </div>
+      <div class="action-row">
+        <button id="fcRetryBtn" class="btn btn-retry" type="button">🔁 Nochmal</button>
+        <button id="fcGoodBtn" class="btn btn-good" type="button">✅ Gewusst!</button>
+      </div>
+    </section>
+
+    <!-- MULTIPLE CHOICE VIEW -->
+    <section id="view-mc" class="hidden">
+      <div id="mcBox" class="quiz-box">
+        <div class="card-meta">
+          <span id="mcMeta" class="tag">Quiz</span>
+          <button id="mcSpeak" class="speak-btn" type="button">🔊 Anhören</button>
+        </div>
+        <div class="card-main">
+          <p id="mcPrompt" class="word-primary">...</p>
+          <p id="mcIpa" class="word-ipa"></p>
+        </div>
+        <div id="mcOptions" class="mc-options"></div>
+        <div id="mcFeedback" class="feedback hidden"></div>
+      </div>
+    </section>
+
+    <!-- TYPING VIEW -->
+    <section id="view-type" class="hidden">
+      <div id="typeBox" class="quiz-box">
+        <div class="card-meta">
+          <span id="typeMeta" class="tag">Tippen</span>
+          <button id="typeSpeak" class="speak-btn" type="button">🔊 Anhören</button>
+        </div>
+        <div class="card-main">
+          <p id="typePrompt" class="word-primary">...</p>
+          <p id="typeSubHint" class="word-ipa"></p>
+        </div>
+        <form id="typeForm" class="type-form">
+          <input id="typeInput" class="type-input" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Englische Antwort eintippen..." />
+          <div class="action-row">
+            <button id="typeHintBtn" class="btn btn-secondary" type="button">💡 Tipp</button>
+            <button id="typeCheckBtn" class="btn btn-accent" type="submit">Prüfen ✓</button>
+          </div>
+        </form>
+        <div id="typeFeedback" class="feedback hidden"></div>
+        <button id="typeNextBtn" class="btn btn-good hidden" style="width:100%;margin-top:12px;" type="button">Weiter →</button>
+      </div>
+    </section>
+
+    <!-- LIST VIEW -->
+    <section id="view-list" class="hidden">
+      <div class="list-search">
+        <input id="listSearchInput" type="text" placeholder="🔍 Vokabel suchen (Deutsch oder Englisch)..." />
+      </div>
+      <div id="vocabList" class="vocab-list"></div>
+    </section>
+  </main>
+
+  <!-- IMPORT MODAL -->
+  <div id="importModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal">
+      <h2>Weitere Vokabeln importieren</h2>
+      <p style="font-size:0.88rem;color:var(--muted);margin-top:0;">
+        Für Unit 2, 3 usw. einfach Zeilen im Format <code>Englisch;Deutsch;Unit;Abschnitt</code> einfügen:
+      </p>
+      <textarea id="importTextarea" rows="7" placeholder="library;Bücherei, Bibliothek;Unit 2;Check-in&#10;homework;Hausaufgaben;Unit 2;Station 1"></textarea>
+      <div class="action-row" style="margin-top:12px;">
+        <button id="closeImportBtn" class="btn btn-secondary" type="button">Abbrechen</button>
+        <button id="saveImportBtn" class="btn btn-good" type="button">Hinzufügen</button>
+      </div>
+      <hr style="border:none;border-top:1px solid var(--border);margin:16px 0;" />
+      <button id="resetProgressBtn" class="btn btn-retry" style="width:100%;" type="button">Lernstand dieses Profils zurücksetzen</button>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="vocab-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

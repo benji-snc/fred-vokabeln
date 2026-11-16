@@ -1,0 +1,18 @@
+{
+  "name": "Freds Vokabeltrainer – Green Line 1",
+  "short_name": "Freds Vokabeln",
+  "description": "Vokabeltrainer für Green Line 1 (Bayern) – Klasse 5",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4f8f5",
+  "theme_color": "#1b8a4b",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
