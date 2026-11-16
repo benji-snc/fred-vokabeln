@@ -53,6 +53,9 @@
   const statDailyStreak = document.getElementById("statDailyStreak");
   const statMastered = document.getElementById("statMastered");
   const statStreak = document.getElementById("statStreak");
+  const xpLevelTitle = document.getElementById("xpLevelTitle");
+  const xpCounter = document.getElementById("xpCounter");
+  const xpProgressBar = document.getElementById("xpProgressBar");
   const dailyGoalLabel = document.getElementById("dailyGoalLabel");
   const dailyGoalBar = document.getElementById("dailyGoalBar");
   const toastEl = document.getElementById("toast");
@@ -174,11 +177,15 @@
       userMeta.lastPracticeDate = today;
     }
     const prevCount = userMeta.todayCount;
+    const oldLevel = Math.floor(userMeta.xp / 100) + 1;
     userMeta.todayCount += 1;
     userMeta.xp += isCorrect ? 10 : 2;
+    const newLevel = Math.floor(userMeta.xp / 100) + 1;
     saveUserMeta();
 
-    if (prevCount < DAILY_GOAL && userMeta.todayCount >= DAILY_GOAL) {
+    if (newLevel > oldLevel) {
+      showToast(`🏆 LEVEL UP! Jetzt Level ${newLevel}!`);
+    } else if (prevCount < DAILY_GOAL && userMeta.todayCount >= DAILY_GOAL) {
       showToast("🎉 Tagesziel geschafft! Stark!");
     } else if (isCorrect && streak > 0 && streak % 5 === 0) {
       showToast(`🔥 ${streak}er Serie! Weiter so!`);
@@ -312,7 +319,14 @@
         ? `${userMeta.todayCount} / ${DAILY_GOAL} ✅`
         : `${userMeta.todayCount} / ${DAILY_GOAL}`;
     dailyGoalBar.style.width = `${pct}%`;
-    levelBadge.textContent = getLevelTitle(userMeta.xp);
+    const lvl = Math.floor(userMeta.xp / 100) + 1;
+    const titles = ["Starter", "Entdecker", "Wort-Fuchs", "Champion", "Vokabel-Profi", "Englisch-Ass"];
+    const title = titles[Math.min(titles.length - 1, lvl - 1)];
+    const xpInLevel = userMeta.xp % 100;
+    xpLevelTitle.textContent = `🏆 Level ${lvl} · ${title}`;
+    xpCounter.textContent = `${xpInLevel} / 100 XP (${userMeta.xp} gesamt)`;
+    xpProgressBar.style.width = `${xpInLevel}%`;
+    levelBadge.textContent = `Green Line 1 Bayern · Klasse 5`;
     updateFilterSummary();
   }
 

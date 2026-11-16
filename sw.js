@@ -1,4 +1,4 @@
-const CACHE_NAME = "fred-vokabeln-v4";
+const CACHE_NAME = "fred-vokabeln-v5";
 const ASSETS = [
   "./",
   "./index.html",
